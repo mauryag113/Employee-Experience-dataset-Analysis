@@ -1,0 +1,97 @@
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Data setup based on the PDF contents provided
+data = pd.DataFrame({
+    'Name': ['John Doe', 'Jane Smith', 'Carlos Reyes', 'Emily Zhang', 'Michael Johnson', 
+             'Sara Ahmed', 'Tom Davis', 'Linda Lopez', 'Raj Patel', 'Amara Njeri',
+             'Helen Martin', 'Peter Brown', 'Nina Roberts', 'Jake Williams', 'Aisha Thompson'],
+    'Age Bracket': ['25-34', '18-24', '45-54', '35-44', '18-24', '45-54', '25-34', '18-24', '35-44', '18-24', 
+                    '45-54', '18-24', '25-34', '18-24', '18-24'],
+    'Department': ['Product Develop', 'Sales', 'Consulting', 'HR', 'Product Develop', 
+                   'Operations', 'HR', 'Product Develop', 'IT', 'Design', 
+                   'Consulting', 'Sales', 'Sales', 'Sales', 'Finance'],
+    'Job Satisfaction': [2, 4, 3, 3, 4, 2, 5, 2, 1, 5, 3, 1, 2, 4, 4],
+    'Work-Life Balance': [5, 1, 1, 4, 5, 1, 5, 4, 5, 5, 3, 2, 3, 1, 5],
+    'Overall Engagement': [5, 3, 5, 3, 2, 2, 3, 3, 4, 2, 3, 3, 2, 5, 5]
+})
+
+# Function to display descriptive statistics
+def descriptive_statistics(data, column_name):
+    stats = data[column_name].describe()
+    print(f"\nDescriptive Statistics for {column_name}:")
+    print(f"Mean: {stats['mean']:.2f}")
+    print(f"Median: {data[column_name].median():.2f}")
+    print(f"Mode: {data[column_name].mode()[0]:.2f}")
+    print(f"Standard Deviation: {stats['std']:.2f}")
+    print(f"Minimum: {stats['min']:.2f}")
+    print(f"Maximum: {stats['max']:.2f}")
+
+# Function to analyze job satisfaction by demographic group
+def satisfaction_by_group(data, group_col):
+    satisfaction = data.groupby(group_col)['Job Satisfaction'].mean()
+    print(f"\nAverage Job Satisfaction by {group_col}:")
+    print(satisfaction)
+
+# Function to perform t-test between two departments
+def department_ttest(data, dept1, dept2):
+    dept1_satisfaction = data[data['Department'] == dept1]['Job Satisfaction']
+    dept2_satisfaction = data[data['Department'] == dept2]['Job Satisfaction']
+    
+    t_stat, p_value = stats.ttest_ind(dept1_satisfaction, dept2_satisfaction, nan_policy='omit')
+
+    print(f"\nT-test Results between {dept1} and {dept2}:")
+    print(f"t-statistic = {t_stat:.3f}, p-value = {p_value:.3f}")
+    
+    if p_value < 0.05:
+        print("Result: Statistically significant difference in Job Satisfaction between the two departments.")
+    else:
+        print("Result: No statistically significant difference in Job Satisfaction between the two departments.")
+
+# Function to analyze correlation between two metrics
+def correlation_analysis(data, col1, col2):
+    correlation = data[col1].corr(data[col2])
+    
+    print(f"\nCorrelation between {col1} and {col2}: {correlation:.2f}")
+    
+    if correlation > 0.7:
+        print("Strong positive correlation")
+    elif correlation > 0.5:
+        print("Moderate positive correlation")
+    elif correlation > 0.3:
+        print("Weak positive correlation")
+    else:
+        print("No significant correlation")
+        
+# Function to visualize Job Satisfaction across departments
+def visualize_satisfaction_by_department(data):
+    plt.figure(figsize=(10,6))
+    sns.boxplot(x='Department', y='Job Satisfaction', data=data)
+    plt.title('Job Satisfaction by Department')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+# Main Execution
+
+# Descriptive Statistics for Overall Engagement and Job Satisfaction
+descriptive_statistics(data, 'Overall Engagement')
+descriptive_statistics(data, 'Job Satisfaction')
+
+# Satisfaction by demographic group (age bracket and department)
+satisfaction_by_group(data, 'Age Bracket')
+satisfaction_by_group(data, 'Department')
+
+# Conduct t-test between IT and HR departments
+dept1 = 'IT'
+dept2 = 'HR'
+department_ttest(data, dept1, dept2)
+
+# Correlation analysis between Work-Life Balance and Overall Engagement
+correlation_analysis(data, 'Work-Life Balance', 'Overall Engagement')
+
+# Visualization: Job Satisfaction across Departments
+visualize_satisfaction_by_department(data)
